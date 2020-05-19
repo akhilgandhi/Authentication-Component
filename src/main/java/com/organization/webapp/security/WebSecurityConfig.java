@@ -16,6 +16,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * A Class that provides Spring Security Configuration
+ * which extends WebSecurityConfigurerAdapter. It provides
+ * HttpSecurity configurations to configure cors, csrf,
+ * session management, rules for protected resources.
+ *
+ * @author Akhil Gandhi
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -48,6 +56,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * It tells Spring Security how we configure CORS and CSRF,
+     * when we want to require all users to be authenticated or
+     * not, which filter (AuthTokenFilter) and when we want it
+     * to work (filter before UsernamePasswordAuthenticationFilter),
+     * which Exception Handler is chosen (AuthEntryPointJwt).
+     *
+     * @param httpSecurity
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
