@@ -16,6 +16,7 @@
 
 	<properties>
 		<java.version>11</java.version>
+		<application.name>authentication-component</application.name>
 	</properties>
 
 	<dependencies>
@@ -71,6 +72,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>${application.name}-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

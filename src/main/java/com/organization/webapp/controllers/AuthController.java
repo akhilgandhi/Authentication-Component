@@ -11,6 +11,8 @@ import com.organization.webapp.repository.RoleRepository;
 import com.organization.webapp.repository.UserRepository;
 import com.organization.webapp.security.UserDetailsImpl;
 import com.organization.webapp.security.jwt.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -56,6 +60,7 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
+        logger.info("Sign in using generated JWT: {}", jwt);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails
@@ -74,12 +79,14 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            logger.error("Username already taken!!!");
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            logger.error("Email already in use!!!");
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
@@ -98,6 +105,7 @@ public class AuthController {
             Roles userRole = roleRepository.findByRole(ERoles.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role not found"));
             roles.add(userRole);
+            logger.info("User role added by default");
         }
         else {
             strRoles.forEach(role -> {
@@ -106,22 +114,27 @@ public class AuthController {
                         Roles adminRole = roleRepository.findByRole(ERoles.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role not found"));
                         roles.add(adminRole);
+                        logger.info("Admin role added");
                         break;
                     case "mod":
                         Roles modRole = roleRepository.findByRole(ERoles.ROLE_MODERATOR)
                                 .orElseThrow(() -> new RuntimeException("Error: Role not found"));
                         roles.add(modRole);
+                        logger.info("Moderator role added");
                         break;
                     default:
                         Roles userRole = roleRepository.findByRole(ERoles.ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role not found"));
                         roles.add(userRole);
+                        logger.info("User role added");
                         break;
                 }
             });
         }
 
         user.setRoles(roles);
+        logger.info("User {} has following roles: ", user.getUsername());
+        roles.stream().forEach(role -> logger.info(role.toString()));
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!!!"));
