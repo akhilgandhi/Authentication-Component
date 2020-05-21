@@ -134,7 +134,7 @@ public class AuthController {
 
         user.setRoles(roles);
         logger.info("User {} has following roles: ", user.getUsername());
-        roles.stream().forEach(role -> logger.info(role.toString()));
+        roles.stream().forEach(role -> logger.info(role.getRole().name()));
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!!!"));
