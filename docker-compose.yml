@@ -1,0 +1,29 @@
+# Authentication-Component/docker-compose.yml
+
+version: "3.7"
+
+services:
+  mysql-service:
+    image: mysql:8.0
+    networks:
+      - authentication-component-network
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=webapp_dev
+      - MYSQL_PASSWORD=G147w41!@
+      - MYSQL_DATABASE=appDevDb
+  authentication-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - authentication-component-network
+    depends_on:
+      - mysql-service
+
+networks:
+  authentication-component-network:
+    driver: bridge
